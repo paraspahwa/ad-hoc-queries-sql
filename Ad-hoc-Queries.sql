@@ -85,5 +85,85 @@ SELECT category, SUM(sales_amount) AS total_revenue
 FROM sales
 GROUP BY category;
 
+# Objective: Find all products with names containing the word "organic."
+
+SELECT product_id, product_name
+FROM products
+WHERE product_name LIKE '%organic%';
+
+# Objective: Retrieve orders placed in the last 7 days.
+
+SELECT order_id, customer_id, order_date
+FROM orders
+WHERE order_date >= CURRENT_DATE - INTERVAL '7' DAY;
+
+
+# Objective: Get a list of employees and their managers
+
+SELECT e.employee_id, e.employee_name, m.employee_name AS manager_name
+FROM employees e
+LEFT JOIN employees m ON e.manager_id = m.employee_id;
+
+
+# Objective: Find customers who made a purchase within the last month.
+
+SELECT customer_id, customer_name
+FROM customers
+WHERE customer_id IN (
+    SELECT DISTINCT customer_id
+    FROM orders
+    WHERE order_date >= CURRENT_DATE - INTERVAL '1' MONTH
+);
+
+# Objective: Find departments with more than five employees.
+
+SELECT department_id, COUNT(*) AS employee_count
+FROM employees
+GROUP BY department_id
+HAVING COUNT(*) > 5;
+
+# Objective: Calculate the running total of sales.
+
+    WITH SalesCTE AS (
+    SELECT order_date, SUM(sales_amount) OVER (ORDER BY order_date) AS running_total
+    FROM sales
+)
+SELECT order_date, running_total
+FROM SalesCTE;
+
+# Objective: Calculate the number of orders per customer category.
+
+SELECT customer_category,
+       COUNT(CASE WHEN order_date >= '2023-01-01' THEN 1 END) AS orders_this_year,
+       COUNT(CASE WHEN order_date < '2023-01-01' THEN 1 END) AS orders_prior_years
+FROM customers
+JOIN orders ON customers.customer_id = orders.customer_id
+GROUP BY customer_category;
+
+
+# Objective: Find the top-selling product in each category.
+
+    SELECT category, product_name, sales_amount
+FROM (
+    SELECT category, product_name, sales_amount,
+           ROW_NUMBER() OVER (PARTITION BY category ORDER BY sales_amount DESC) AS ranking
+    FROM products
+) ranked_products
+WHERE ranking = 1;
+
+
+# Objective: Find the age of employees in years.
+
+SELECT employee_name, DATE_PART('year', AGE(CURRENT_DATE, birthdate)) AS age_years
+FROM employees;
+
+
+# Objective: Randomly sample 10% of customer data.
+
+SELECT *
+FROM customers
+TABLESAMPLE SYSTEM (10);
+
+
 
 
