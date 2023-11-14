@@ -1,0 +1,5 @@
+mysqldump -u root -p ec2db > ec2db.sql
+mysql -h demordsdatabase.cgg1q9d8l34c.us-west-2.rds.amazonaws.com -P 3306 -u rdsuser -p DemoRDS < ec2db.sql
+mysql -h <replace-rds-end-point-here> -P 3306 -u rdsuser -p
+USE rdsdb
+SELECT * FROM table1;
